@@ -1,39 +1,52 @@
-# LocalStack Demo: Quantum Ledger Database (QLDB) Queries
+# QLDB Ledger Queries
 
-Simple demo application illustrating running queries against a QLDB ledger on your local machine, using LocalStack.
+| Key          | Value                               |
+| ------------ | ----------------------------------- |
+| Services     | QLDB                                |
+| Integrations | AWS CLI                             |
+| Categories   | Database                            |
+
+## Introduction
+
+A demo application illustrating running queries against a Quantum Ledger Database (QLDB) ledger locally using LocalStack. The sample creates a QLDB ledger, runs INSERT and SELECT queries, and demonstrates join operations between tables in the ledger journal.
 
 ## Prerequisites
 
-* LocalStack
-* Docker
-* Python
-* `make`
-* [`awslocal`](https://github.com/localstack/awscli-local)
+- A valid [LocalStack for AWS license](https://localstack.cloud/pricing). Your license provides a [`LOCALSTACK_AUTH_TOKEN`](https://docs.localstack.cloud/getting-started/auth-token/) to activate LocalStack.
+- [Docker](https://docs.docker.com/get-docker/)
+- [`localstack` CLI](https://docs.localstack.cloud/getting-started/installation/#localstack-cli)
+- [`awslocal` CLI](https://docs.localstack.cloud/user-guide/integrations/aws-cli/)
+- [Python 3](https://www.python.org/downloads/)
 
-## Installing
+## Check prerequisites
 
-To install the dependencies:
+```bash
+make check
 ```
+
+## Installation
+
+```bash
 make install
 ```
 
-## Starting LocalStack
+## Start LocalStack
 
-Make sure that LocalStack is started:
-```
-LOCALSTACK_AUTH_TOKEN=... DEBUG=1 localstack start
+```bash
+export LOCALSTACK_AUTH_TOKEN=<your-auth-token>
+make start
 ```
 
-## Running
+## Run the application
 
-Run the scenario Python script `query.py` as follows:
-```
+```bash
 make run
 ```
 
-The test script creates a new QLDB ledger, and runs a couple of queries to INSERT and SELECT data from the ledger journal.
+The script creates a QLDB ledger, inserts test data, runs SELECT queries, and demonstrates join operations across tables.
 
-You should see some logs from the script, similar to the output below:
+You should see output similar to:
+
 ```
 Scenario 1: create and list tables in ledger
 -----------

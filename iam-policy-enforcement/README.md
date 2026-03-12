@@ -1,37 +1,59 @@
-# LocalStack Demo: IAM Policy Enforcement
+# IAM Policy Enforcement
 
-Simple demo application illustrating enforcement of IAM policies when working with local cloud APIs in LocalStack.
+| Key          | Value                               |
+| ------------ | ----------------------------------- |
+| Services     | IAM, S3, Kinesis                    |
+| Integrations | AWS CLI                             |
+| Categories   | Security                            |
+
+## Introduction
+
+A demo application illustrating enforcement of IAM policies when working with local cloud APIs in LocalStack. The sample creates IAM users with specific policies and demonstrates allowed and denied API calls based on the configured permissions.
+
+> Note: IAM enforcement is not enabled by default. Set `ENFORCE_IAM=1` before starting LocalStack to enable it.
 
 ## Prerequisites
 
-* LocalStack
-* Docker
-* `make`
+- A valid [LocalStack for AWS license](https://localstack.cloud/pricing). Your license provides a [`LOCALSTACK_AUTH_TOKEN`](https://docs.localstack.cloud/getting-started/auth-token/) to activate LocalStack.
+- [Docker](https://docs.docker.com/get-docker/)
+- [`localstack` CLI](https://docs.localstack.cloud/getting-started/installation/#localstack-cli)
+- [`awslocal` CLI](https://docs.localstack.cloud/user-guide/integrations/aws-cli/)
 
-## Installing
+## Check prerequisites
 
-To install the dependencies:
+```bash
+make check
 ```
+
+## Installation
+
+```bash
 make install
 ```
 
-## Configuration
+## Start LocalStack
 
-Please note that LocalStack by default does not enforce IAM policies. IAM needs to be manually enabled by setting the `ENFORCE_IAM=1` environment variable.
+The Makefile exports `ENFORCE_IAM=1` automatically. Start LocalStack with:
 
-## Running
-
-Make sure that the `ENFORCE_IAM=1` environment variable is enabled, and that LocalStack is started:
-```
-LOCALSTACK_AUTH_TOKEN=... ENFORCE_IAM=1 DEBUG=1 localstack start
+```bash
+export LOCALSTACK_AUTH_TOKEN=<your-auth-token>
+make start
 ```
 
-Run the script that is running the :
-```
+## Run the application
+
+```bash
 make run
 ```
 
-You should see a couple of allowed and denied API calls (as per the IAM policies) in the terminal output:
+The script demonstrates:
+
+- Denied Kinesis and S3 operations for users without the required IAM policies.
+- Creating an IAM user with a policy that allows Kinesis access.
+- Allowed Kinesis and S3 operations using the IAM credentials with the correct policy.
+
+You should see output similar to:
+
 ```
 Running IAM enforcement tests in local environment
 Step 1: Trying to create Kinesis stream - should get DENIED ...

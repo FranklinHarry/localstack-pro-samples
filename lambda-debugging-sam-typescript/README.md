@@ -1,33 +1,46 @@
-# Debug your TypeScript Lambda Function
+# Lambda Remote Debugging (TypeScript)
 
-This Hello World Lambda function written in JavaScript demonstrates how to use interactive breakpoint-debugging using LocalStack [Lambda Remote Debugging](https://docs.localstack.cloud/aws/tooling/lambda-tools/remote-debugging/).
-LocalStack automatically configures debugging and adjusts relevant timeouts.
+| Key          | Value                                                   |
+| ------------ | ------------------------------------------------------- |
+| Services     | Lambda                                                  |
+| Integrations | AWS SAM, VS Code, AWS Toolkit for VS Code               |
+| Categories   | Serverless; Debugging                                   |
 
-We recommend the one-click setup using the AWS Toolkit for VS Code unless your advanced scenario requires Lambda Debug Mode (Preview).
+## Introduction
 
-> [!NOTE]
-> Check out our blog post [Developing with LocalStack using the AWS Toolkit for VS Code](#TODO-update-link)
+A Hello World TypeScript Lambda function demonstrating interactive breakpoint debugging using LocalStack [Lambda Remote Debugging](https://docs.localstack.cloud/aws/tooling/lambda-tools/remote-debugging/). LocalStack automatically configures debugging and adjusts relevant timeouts. The recommended setup uses the AWS Toolkit for VS Code for one-click debugging.
 
 ## Prerequisites
 
-* [Docker](https://www.docker.com/)
-* [VS Code](https://code.visualstudio.com/)
-* [LocalStack Toolkit for VS Code](https://marketplace.visualstudio.com/items?itemName=localstack.localstack) ≥ 1.2 installs [LocalStack](https://docs.localstack.cloud/aws/getting-started/installation/) ≥ 4.8
-* [AWS Toolkit for VS Code](https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.aws-toolkit-vscode) ≥ 3.74
-* `make`
-* [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) or [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
+- A valid [LocalStack for AWS license](https://localstack.cloud/pricing). Your license provides a [`LOCALSTACK_AUTH_TOKEN`](https://docs.localstack.cloud/getting-started/auth-token/) to activate LocalStack.
+- [Docker](https://docs.docker.com/get-docker/)
+- [VS Code](https://code.visualstudio.com/) with the [LocalStack Toolkit](https://marketplace.visualstudio.com/items?itemName=localstack.localstack) ≥ 1.2 and [AWS Toolkit](https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.aws-toolkit-vscode) ≥ 3.74
+- [Node.js](https://nodejs.org/en/download/) with `npm`
+- [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) or [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
 
-## Starting Up
+## Check prerequisites
+
+```bash
+make check
+```
+
+## Installation
+
+```bash
+make install
+```
+
+## Start LocalStack
 
 1. Execute the VS Code command "LocalStack: Run Setup Wizard" using the LocalStack Toolkit
 2. Start LocalStack by clicking on the LocalStack Toolkit status bar
 
-## Deploying
+## Deploy the Lambda function
 
 1. Run `make build`
 2. Run `make deploy`
 
-## Debugging
+## Debug the Lambda function
 
 1. Open the **Remote invoke configuration** in the AWS Toolkit
     1. Open the AWS Toolkit extension
@@ -48,30 +61,30 @@ We recommend the one-click setup using the AWS Toolkit for VS Code unless your a
 > * `.aws-sam/build/HelloWorldFunction` using workspace `code localstack-pro-samples/lambda-debugging-sam-typescript`
 > * `lambda-debugging-sam-typescript/.aws-sam/build/HelloWorldFunction` using workspace `code localstack-pro-samples`
 
-## Lambda Debug Mode (Preview, Pro)
+## Lambda Debug Mode
 
 ### Starting Up
 
 1. Start LocalStack with the following configuration:
 
     ```sh
-    LOCALSTACK_IMAGE_NAME=localstack/localstack-pro \
+    LOCALSTACK_AUTH_TOKEN=<your-auth-token> \
     LOCALSTACK_LAMBDA_DEBUG_MODE=1 \
     LOCALSTACK_LAMBDA_DEBUG_MODE_CONFIG_PATH=/tmp/lambda_debug_mode_config.yaml \
     localstack start --volume $PWD/lambda_debug_mode_config.yaml:/tmp/lambda_debug_mode_config.yaml
     ```
 
-    * `IMAGE_NAME=localstack/localstack-pro` ensures the Pro image is started
+    * `LOCALSTACK_AUTH_TOKEN=<your-auth-token>` is the authentication token for LocalStack
     * `LOCALSTACK_LAMBDA_DEBUG_MODE=1` adjusts timeouts
     * `LOCALSTACK_LAMBDA_DEBUG_MODE_CONFIG_PATH=/tmp/lambda_debug_mode_config.yaml` points to the config file for Lambda debug mode allowing for advanced configuration. It maps the Lambda function `arn:aws:lambda:us-east-1:000000000000:function:HelloWorldFunctionTypeScript` to port `7050`.
     * `--volume $PWD/lambda_debug_mode_config.yaml:/tmp/lambda_debug_mode_config.yaml` maps the Lambda debug configuration from the host into the LocalStack Docker container for hot-reloading configuration updates.
 
-### Deploying
+### Deploy the Lambda function
 
 1. Run `make build` to build the Lambda ZIP package
 2. Run `make deploy` to deploy the Lambda function
 
-### Debugging
+### Debug the Lambda function
 
 1. Open the sample folder in VS Code to auto-detect `.vscode/launch.json`
     a. If using SAM, ensure `localRoot` is set to `${workspaceFolder}/hello-world`

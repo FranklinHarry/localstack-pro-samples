@@ -1,39 +1,57 @@
-# LocalStack Demo: Gacier and S3 Select Queries
+# Glacier and S3 Select Queries
 
-Simple demo application illustrating the use of Glacier API and S3 Select queries using LocalStack.
+| Key          | Value                               |
+| ------------ | ----------------------------------- |
+| Services     | S3, Glacier                         |
+| Integrations | AWS CLI                             |
+| Categories   | Storage; Analytics                  |
+
+## Introduction
+
+A demo application illustrating the use of the Glacier API and S3 Select queries using LocalStack. The sample uploads CSV data, runs S3 Select queries to aggregate results, and demonstrates Glacier vault operations with select jobs.
 
 ## Prerequisites
 
-* LocalStack
-* Docker
-* `make`
-* [`awslocal`](https://github.com/localstack/awscli-local)
+- A valid [LocalStack for AWS license](https://localstack.cloud/pricing). Your license provides a [`LOCALSTACK_AUTH_TOKEN`](https://docs.localstack.cloud/getting-started/auth-token/) to activate LocalStack.
+- [Docker](https://docs.docker.com/get-docker/)
+- [`localstack` CLI](https://docs.localstack.cloud/getting-started/installation/#localstack-cli)
+- [`awslocal` CLI](https://docs.localstack.cloud/user-guide/integrations/aws-cli/)
 
-## Installing
+## Check prerequisites
 
-To install the dependencies:
+```bash
+make check
 ```
+
+## Installation
+
+```bash
 make install
 ```
 
-## App Details
+## Start LocalStack
 
-Please refer to the `test.csv` file and feel free to modify in order to see changes in the query results.
-
-## Running
-
-Make sure that LocalStack is started:
-```
-LOCALSTACK_AUTH_TOKEN=... DEBUG=1 localstack start
+```bash
+export LOCALSTACK_AUTH_TOKEN=<your-auth-token>
+make start
 ```
 
-The following command creates local S3 buckets and Glacier vaults, and runs simple demo queries over the `data.csv` CSV file:
+## Run the application
 
-```
+```bash
 make run
 ```
 
-After the test script completes, the logs in your terminal should look similar to the output below:
+The script:
+
+- Creates S3 buckets, uploads CSV data, and runs S3 Select queries.
+- Creates a Glacier vault and uploads a CSV file.
+- Initiates a Glacier select job and downloads the query results.
+
+Please refer to the `test.csv` file and feel free to modify it to see changes in the query results.
+
+You should see output similar to:
+
 ```
 $ make run
 Creating S3 bucket and Glacier vault in LocalStack

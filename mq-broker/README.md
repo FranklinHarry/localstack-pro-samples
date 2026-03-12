@@ -1,34 +1,51 @@
-# LocalStack Demo: MQ Broker
+# MQ Broker
 
-Simple demo application illustrating the use of MQ using LocalStack.
+| Key          | Value                               |
+| ------------ | ----------------------------------- |
+| Services     | MQ                                  |
+| Integrations | AWS CLI                             |
+| Categories   | Messaging                           |
+
+## Introduction
+
+A demo application illustrating the use of the AWS MQ API with LocalStack. The sample creates a message broker, connects to it, sends a message to a queue, and cleans up the broker.
 
 ## Prerequisites
 
-* LocalStack
-* Docker
-* `make`
-* [`awslocal`](https://github.com/localstack/awscli-local)
+- A valid [LocalStack for AWS license](https://localstack.cloud/pricing). Your license provides a [`LOCALSTACK_AUTH_TOKEN`](https://docs.localstack.cloud/getting-started/auth-token/) to activate LocalStack.
+- [Docker](https://docs.docker.com/get-docker/)
+- [`localstack` CLI](https://docs.localstack.cloud/getting-started/installation/#localstack-cli)
+- [`awslocal` CLI](https://docs.localstack.cloud/user-guide/integrations/aws-cli/)
 
-## Installing
+## Check prerequisites
 
-To install the dependencies:
+```bash
+make check
 ```
+
+## Installation
+
+```bash
 make install
 ```
 
-## Running
+## Start LocalStack
 
-Make sure that LocalStack is started:
-```
-LOCALSTACK_AUTH_TOKEN=... DEBUG=1 localstack start
+```bash
+export LOCALSTACK_AUTH_TOKEN=<your-auth-token>
+make start
 ```
 
-The following command runs the example, which starts up a broker and sends a message to a queue:
-```
+## Run the application
+
+```bash
 make run
 ```
 
-After the test script completes, the logs in your terminal should look similar to the output below:
+The script creates an MQ broker, retrieves the broker endpoint, sends a message to the queue, and deletes the broker.
+
+You should see output similar to:
+
 ```
 $ make run
 Creating MQ broker in LocalStack ...
