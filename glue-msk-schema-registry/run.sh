@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
+cluster_arn=""
+schema_arn=""
 
 # Tear-down function to cleanup on exit
 function finish {
   echo ""
   # Delete the cluster (if available)
   echo "(Cleanup) Deleting Kafka cluster."
-  awslocal kafka delete-cluster --cluster-arn  $cluster_arn 2> /dev/null || true
+  if [ -n "$cluster_arn" ]; then
+    awslocal kafka delete-cluster --cluster-arn "$cluster_arn" 2> /dev/null || true
+  fi
   # Delete the schema registry
   echo "(Cleanup) Deleting registry."
   awslocal glue delete-registry --registry-id RegistryName=unicorn-ride-request-registry 2> /dev/null || true
@@ -13,7 +19,7 @@ function finish {
 trap finish EXIT
 
 # Function to wait for a key input before continuing (only in interactive mode)
-if [ "$1" = "-it" ]; then
+if [ "${1:-}" = "-it" ]; then
   function step {
     if [ -n "$1" ]; then
       echo ""
@@ -33,11 +39,15 @@ else
 fi
 
 step "Start with creating a Kafka cluster..."
+vpc_id=$(set -x; awslocal ec2 create-vpc --cidr-block 10.0.0.0/16 | jq -r .Vpc.VpcId)
+subnet_1=$(set -x; awslocal ec2 create-subnet --vpc-id "$vpc_id" --cidr-block 10.0.1.0/24 --availability-zone us-east-1a | jq -r .Subnet.SubnetId)
+subnet_2=$(set -x; awslocal ec2 create-subnet --vpc-id "$vpc_id" --cidr-block 10.0.2.0/24 --availability-zone us-east-1b | jq -r .Subnet.SubnetId)
 cluster_arn=$(set -x;awslocal kafka create-cluster \
   --cluster-name "unicorn-ride-cluster" \
-  --kafka-version "2.2.1" \
-  --number-of-broker-nodes 1 \
-  --broker-node-group-info "{\"ClientSubnets\": [], \"InstanceType\":\"kafka.m5.xlarge\"}" | jq -r .ClusterArn)
+  --kafka-version "3.6.0" \
+  --number-of-broker-nodes 2 \
+  --broker-node-group-info "{\"ClientSubnets\": [\"$subnet_1\", \"$subnet_2\"], \"InstanceType\":\"kafka.m5.xlarge\"}" \
+  --encryption-info "{\"EncryptionInTransit\": {\"ClientBroker\": \"PLAINTEXT\"}}" | jq -r .ClusterArn)
 
 state=$(set -x; awslocal kafka describe-cluster --cluster-arn $cluster_arn | jq -r .ClusterInfo.State)
 
@@ -100,7 +110,7 @@ step "Get a diff between the initial version and the version registered by the n
   --second-schema-version-number LatestVersion=True | jq -r)
 
 step "Expected failure: Execute a producer which tries to register an incompatible schema..."
-(set -x; mvn -pl producer-3 exec:java -Dexec.args="--bootstrap-servers $bootstrap_broker")
+(set -x; mvn -pl producer-3 exec:java -Dexec.args="--bootstrap-servers $bootstrap_broker") || true
 
 step "Check that the newly registered schema is in state 'FAILED'..."
 awslocal glue get-schema-version \
@@ -108,7 +118,7 @@ awslocal glue get-schema-version \
   --schema-version-number VersionNumber=3
 
 step "Expected failure: Execute an incompatible (outdated) consumer..."
-(set -x; mvn -pl consumer exec:java -Dexec.args="--bootstrap-servers $bootstrap_broker")
+(set -x; mvn -pl consumer exec:java -Dexec.args="--bootstrap-servers $bootstrap_broker") || true
 
 step "Execute a compatible (updated) consumer..."
 (set -x; mvn -pl consumer-2 exec:java -Dexec.args="--bootstrap-servers $bootstrap_broker")
